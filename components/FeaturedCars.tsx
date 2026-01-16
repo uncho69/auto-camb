@@ -32,7 +32,8 @@ export default function FeaturedCars() {
     return () => clearInterval(interval)
   }, [])
 
-  const featuredCars = cars.filter(car => car.status === 'Disponibile').slice(0, 6)
+  // Mostra auto "Disponibile" e "Prossimamente", escludi solo "Venduto"
+  const featuredCars = cars.filter(car => car.status !== 'Venduto').slice(0, 6)
 
   if (loading) {
     return (
