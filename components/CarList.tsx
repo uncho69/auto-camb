@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { getCars } from '@/lib/carsStorage'
+import { getCars } from '@/lib/carsApi'
 import CarCard from './CarCard'
 import { Car } from '@/types/car'
 import { Search, Filter, X } from 'lucide-react'
@@ -17,20 +17,27 @@ export default function CarList({ initialFilters }: CarListProps) {
   const [selectedFuel, setSelectedFuel] = useState<string>('')
   const [showFilters, setShowFilters] = useState(false)
   const [cars, setCars] = useState<Car[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Carica le auto
+  // Carica le auto dal database
   useEffect(() => {
-    setCars(getCars())
-    
-    // Ascolta gli aggiornamenti
-    const handleUpdate = () => {
-      setCars(getCars())
+    const loadCars = async () => {
+      try {
+        const loadedCars = await getCars()
+        setCars(loadedCars)
+      } catch (error) {
+        console.error('Error loading cars:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-    window.addEventListener('carsUpdated', handleUpdate)
     
-    return () => {
-      window.removeEventListener('carsUpdated', handleUpdate)
-    }
+    loadCars()
+    
+    // Ricarica ogni 30 secondi per avere dati aggiornati
+    const interval = setInterval(loadCars, 30000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   // Apply initial filters from URL params

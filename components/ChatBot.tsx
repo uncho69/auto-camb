@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Car } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getCars } from '@/lib/carsStorage'
+import { getCars } from '@/lib/carsApi'
 import { Car as CarType } from '@/types/car'
 
 export default function ChatBot() {
@@ -29,18 +29,22 @@ export default function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Carica le auto
-    setCars(getCars())
-    
-    // Ascolta gli aggiornamenti
-    const handleUpdate = () => {
-      setCars(getCars())
+    // Carica le auto dal database
+    const loadCars = async () => {
+      try {
+        const loadedCars = await getCars()
+        setCars(loadedCars)
+      } catch (error) {
+        console.error('Error loading cars:', error)
+      }
     }
-    window.addEventListener('carsUpdated', handleUpdate)
     
-    return () => {
-      window.removeEventListener('carsUpdated', handleUpdate)
-    }
+    loadCars()
+    
+    // Ricarica ogni 30 secondi per avere dati aggiornati
+    const interval = setInterval(loadCars, 30000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const scrollToBottom = () => {
