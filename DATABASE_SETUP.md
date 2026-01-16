@@ -80,6 +80,18 @@ CREATE TABLE trade_requests (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Tabella per le richieste "Servizio Navetta"
+CREATE TABLE navetta_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  nome TEXT NOT NULL,
+  cognome TEXT NOT NULL,
+  email TEXT NOT NULL,
+  telefono TEXT NOT NULL,
+  cap TEXT NOT NULL,
+  messaggio TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Abilita Row Level Security (RLS) - le auto sono pubbliche
 ALTER TABLE cars ENABLE ROW LEVEL SECURITY;
 
@@ -105,6 +117,11 @@ CREATE POLICY "Anyone can insert buy requests" ON buy_requests
 -- RLS per trade_requests
 ALTER TABLE trade_requests ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can insert trade requests" ON trade_requests
+  FOR INSERT WITH CHECK (true);
+
+-- RLS per navetta_requests
+ALTER TABLE navetta_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can insert navetta requests" ON navetta_requests
   FOR INSERT WITH CHECK (true);
 
 -- Policy: solo admin può leggere (gestito via service role key)

@@ -23,18 +23,30 @@ export async function POST(request: NextRequest) {
     const navettaRequest: Omit<NavettaRequest, 'id' | 'createdAt'> = await request.json()
     console.log('Navetta request received:', JSON.stringify(navettaRequest, null, 2))
 
-    // Salva nel database (opzionale, se vuoi salvare le richieste)
-    // Per ora inviamo solo l'email
-    // const { data: savedRequest, error: dbError } = await supabaseAdmin
-    //   .from('navetta_requests')
-    //   .insert([navettaRequest])
-    //   .select()
-    //   .single()
+    // Salva nel database
+    const { data: savedRequest, error: dbError } = await supabaseAdmin
+      .from('navetta_requests')
+      .insert([navettaRequest])
+      .select()
+      .single()
 
-    // if (dbError) {
-    //   console.error('Error saving request:', dbError)
-    //   // Non blocchiamo se il salvataggio fallisce, inviamo comunque l'email
-    // }
+    if (dbError) {
+      console.error('Error saving request:', dbError)
+      console.error('Database error details:', JSON.stringify(dbError, null, 2))
+      
+      // Messaggio più specifico per errori comuni
+      let errorMessage = dbError.message
+      if (dbError.message?.includes('relation') && dbError.message?.includes('does not exist')) {
+        errorMessage = 'Tabella navetta_requests non trovata. Verifica che il database sia configurato correttamente.'
+      } else if (dbError.message?.includes('column') && dbError.message?.includes('does not exist')) {
+        errorMessage = 'Colonna mancante nella tabella. Verifica che tutte le colonne siano state create.'
+      }
+      
+      // Non blocchiamo se il salvataggio fallisce, proviamo comunque a inviare l'email
+      console.warn('⚠️ Database save failed, but continuing with email...')
+    } else {
+      console.log('✅ Request saved to database:', savedRequest)
+    }
 
     // Invia email
     const adminEmail = process.env.ADMIN_EMAIL || 'autocambss@gmail.com'
