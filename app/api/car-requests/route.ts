@@ -3,7 +3,15 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { CarRequest } from '@/types/carRequest'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Inizializza Resend solo se la chiave esiste
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.error('RESEND_API_KEY is not set!')
+    return null
+  }
+  return new Resend(apiKey)
+}
 
 // POST - Crea una nuova richiesta e invia email
 export async function POST(request: NextRequest) {
@@ -31,46 +39,54 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL || 'autocambss@gmail.com'
     const resendApiKey = process.env.RESEND_API_KEY
     
-    console.log('Email configuration:', {
-      adminEmail,
-      hasResendKey: !!resendApiKey,
-      resendKeyLength: resendApiKey?.length || 0
-    })
+    console.log('=== EMAIL CONFIGURATION ===')
+    console.log('Admin Email:', adminEmail)
+    console.log('Has Resend Key:', !!resendApiKey)
+    console.log('Resend Key Length:', resendApiKey?.length || 0)
+    console.log('Resend Key Preview:', resendApiKey ? `${resendApiKey.substring(0, 10)}...` : 'MISSING')
     
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY is missing!')
-    }
+    const resend = getResend()
     
-    try {
-      const emailResult = await resend.emails.send({
-        from: 'AUTOCAMB.IT <onboarding@resend.dev>', // Usa dominio Resend per test
-        to: adminEmail,
-        subject: `Nuova richiesta: Cerca un'auto - ${carRequest.marca || 'Generica'} ${carRequest.modello || ''}`,
-        html: `
-          <h2>Nuova richiesta: Cerca un'auto</h2>
-          <h3>Dati cliente:</h3>
-          <ul>
-            <li><strong>Nome:</strong> ${carRequest.nome}</li>
-            <li><strong>Cognome:</strong> ${carRequest.cognome}</li>
-            <li><strong>Email:</strong> ${carRequest.email}</li>
-            <li><strong>Telefono:</strong> ${carRequest.telefono}</li>
-            <li><strong>CAP:</strong> ${carRequest.cap}</li>
-            ${carRequest.messaggio ? `<li><strong>Messaggio:</strong> ${carRequest.messaggio}</li>` : ''}
-          </ul>
-          <h3>Dettagli auto richiesta:</h3>
-          <ul>
-            ${carRequest.marca && carRequest.marca.trim() ? `<li><strong>Marca:</strong> ${carRequest.marca}</li>` : ''}
-            ${carRequest.modello && carRequest.modello.trim() ? `<li><strong>Modello:</strong> ${carRequest.modello}</li>` : ''}
-            ${carRequest.km && carRequest.km.trim() ? `<li><strong>Km massimi:</strong> ${carRequest.km}</li>` : ''}
-          </ul>
-          <p><strong>Data richiesta:</strong> ${new Date().toLocaleString('it-IT')}</p>
-        `,
-      })
-      console.log('Email sent successfully:', emailResult)
-    } catch (emailError: any) {
-      console.error('Error sending email:', emailError)
-      console.error('Email error details:', JSON.stringify(emailError, null, 2))
-      // Non blocchiamo la risposta se l'email fallisce, la richiesta è comunque salvata
+    if (!resend) {
+      console.error('❌ RESEND_API_KEY is missing! Cannot send email.')
+      console.error('Please check Vercel Environment Variables')
+    } else {
+      try {
+        console.log('Attempting to send email...')
+        const emailResult = await resend.emails.send({
+          from: 'AUTOCAMB.IT <onboarding@resend.dev>', // Usa dominio Resend per test
+          to: adminEmail,
+          subject: `Nuova richiesta: Cerca un'auto - ${carRequest.marca || 'Generica'} ${carRequest.modello || ''}`,
+          html: `
+            <h2>Nuova richiesta: Cerca un'auto</h2>
+            <h3>Dati cliente:</h3>
+            <ul>
+              <li><strong>Nome:</strong> ${carRequest.nome}</li>
+              <li><strong>Cognome:</strong> ${carRequest.cognome}</li>
+              <li><strong>Email:</strong> ${carRequest.email}</li>
+              <li><strong>Telefono:</strong> ${carRequest.telefono}</li>
+              <li><strong>CAP:</strong> ${carRequest.cap}</li>
+              ${carRequest.messaggio ? `<li><strong>Messaggio:</strong> ${carRequest.messaggio}</li>` : ''}
+            </ul>
+            <h3>Dettagli auto richiesta:</h3>
+            <ul>
+              ${carRequest.marca && carRequest.marca.trim() ? `<li><strong>Marca:</strong> ${carRequest.marca}</li>` : ''}
+              ${carRequest.modello && carRequest.modello.trim() ? `<li><strong>Modello:</strong> ${carRequest.modello}</li>` : ''}
+              ${carRequest.km && carRequest.km.trim() ? `<li><strong>Km massimi:</strong> ${carRequest.km}</li>` : ''}
+            </ul>
+            <p><strong>Data richiesta:</strong> ${new Date().toLocaleString('it-IT')}</p>
+          `,
+        })
+        console.log('✅ Email sent successfully!')
+        console.log('Email Result:', JSON.stringify(emailResult, null, 2))
+      } catch (emailError: any) {
+        console.error('❌ Error sending email!')
+        console.error('Error type:', emailError?.constructor?.name)
+        console.error('Error message:', emailError?.message)
+        console.error('Error stack:', emailError?.stack)
+        console.error('Full error object:', JSON.stringify(emailError, Object.getOwnPropertyNames(emailError), 2))
+        // Non blocchiamo la risposta se l'email fallisce, la richiesta è comunque salvata
+      }
     }
 
     return NextResponse.json(savedRequest, { status: 201 })
