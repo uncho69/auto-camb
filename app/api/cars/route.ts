@@ -2,6 +2,28 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { Car } from '@/types/car'
 
+// Converte i dati dal database (snake_case) al tipo Car (camelCase)
+function convertDbCarToCar(dbCar: any): Car {
+  return {
+    id: dbCar.id,
+    brand: dbCar.brand,
+    model: dbCar.model,
+    version: dbCar.version,
+    year: dbCar.year,
+    km: dbCar.km,
+    fuel: dbCar.fuel,
+    price: Number(dbCar.price),
+    image: dbCar.image,
+    consumption: dbCar.consumption ? Number(dbCar.consumption) : 0,
+    co2: dbCar.co2 ? Number(dbCar.co2) : 0,
+    emissionClass: dbCar.emission_class || '',
+    category: dbCar.category,
+    status: dbCar.status,
+    tags: dbCar.tags || [],
+    description: dbCar.description || '',
+  }
+}
+
 // GET - Ottieni tutte le auto
 export async function GET() {
   try {
@@ -15,7 +37,9 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(data || [])
+    // Converti i dati dal formato database al formato Car
+    const cars = (data || []).map(convertDbCarToCar)
+    return NextResponse.json(cars)
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json(
@@ -70,7 +94,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ Car created successfully:', data)
-    return NextResponse.json(data, { status: 201 })
+    // Converti i dati dal formato database al formato Car
+    const convertedCar = convertDbCarToCar(data)
+    return NextResponse.json(convertedCar, { status: 201 })
   } catch (error: any) {
     console.error('❌ Unexpected error:', error)
     console.error('Error stack:', error?.stack)
