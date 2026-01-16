@@ -140,10 +140,25 @@ export default function ChatBot() {
   }
 
   const containsCarKeywords = (message: string): boolean => {
-    const lowerMessage = message.toLowerCase()
+    const lowerMessage = message.toLowerCase().trim()
+    
+    // Se il messaggio è molto corto (1-3 parole), probabilmente è una marca/modello
+    const words = lowerMessage.split(/\s+/).filter(w => w.length > 0)
+    if (words.length <= 3 && words.length > 0) {
+      // Controlla se sembra una marca/modello (non contiene parole comuni)
+      const commonWords = ['ciao', 'salve', 'grazie', 'prezzo', 'costo', 'finanziamento', 'rata', 'garanzia']
+      const isCommonWord = words.some(word => commonWords.includes(word))
+      if (!isCommonWord) {
+        return true // Probabilmente è una ricerca auto
+      }
+    }
+    
+    // Lista estesa di marche e modelli
     const carKeywords = [
       'fiat', 'opel', 'volkswagen', 'seat', 'citroen', 'peugeot', 'renault', 'ford',
       'panda', 'corsa', 'polo', 'ibiza', 'c3', 'leon', 'golf', 'punto', 'ypsilon',
+      'porsche', 'ferrari', 'lamborghini', 'bmw', 'mercedes', 'audi', 'alfa romeo',
+      'lancia', 'mazda', 'toyota', 'honda', 'nissan', 'hyundai', 'kia', 'suzuki',
       'auto', 'macchina', 'vettura', 'veicolo', 'cerco', 'cercando', 'cerchi',
       'disponibile', 'disponibilità', 'modello', 'marca'
     ]
@@ -183,7 +198,11 @@ export default function ChatBot() {
     }
     
     // Se il messaggio sembra essere una ricerca auto ma non ha trovato risultati
-    if (containsCarKeywords(message)) {
+    // Cerca sempre nel database prima di decidere se è una ricerca auto
+    const seemsLikeCarSearch = containsCarKeywords(message) || 
+                                message.trim().split(/\s+/).length <= 3
+    
+    if (seemsLikeCarSearch) {
       return { 
         text: `Mi dispiace, al momento non abbiamo l'auto che stai cercando nel nostro parco.\n\nNon ti preoccupare! Possiamo aiutarti a trovarla:\n\n📞 Chiamaci al 079 2638300\n📧 Scrivici a autocambss@gmail.com\n\nIl nostro team può cercare l'auto che desideri e contattarti non appena sarà disponibile. Offriamo anche il servizio "Cerca un'auto" per trovare modelli specifici!` 
       }
@@ -275,7 +294,24 @@ export default function ChatBot() {
                     : 'bg-white text-primary-900 shadow-md'
                 }`}
               >
-                <p className="text-sm whitespace-pre-line">{message.text}</p>
+                <div className="text-sm whitespace-pre-line">
+                  {message.text.split('"Cerca un\'auto"').map((part, index, array) => {
+                    if (index === array.length - 1) {
+                      return <span key={index}>{part}</span>
+                    }
+                    return (
+                      <span key={index}>
+                        {part}
+                        <Link
+                          href="/servizi/cerca-auto"
+                          className="text-primary-600 hover:text-primary-700 underline font-medium"
+                        >
+                          "Cerca un'auto"
+                        </Link>
+                      </span>
+                    )
+                  })}
+                </div>
                 
                 {/* Auto cards se presenti */}
                 {message.cars && message.cars.length > 0 && (
