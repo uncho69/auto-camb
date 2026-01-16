@@ -160,7 +160,20 @@ export default function ChatBot() {
       const carList = foundCars.slice(0, 3) // Mostra max 3 auto
       const moreCount = foundCars.length - carList.length
       
+      // Controlla se ci sono auto con status "Prossimamente"
+      const prossimamenteCars = foundCars.filter(car => car.status === 'Prossimamente')
+      const disponibileCars = foundCars.filter(car => car.status === 'Disponibile')
+      
       let responseText = `Ho trovato ${foundCars.length} auto${foundCars.length > 1 ? '' : ''} che potrebbero interessarti:\n\n`
+      
+      // Aggiungi avviso se ci sono auto "Prossimamente"
+      if (prossimamenteCars.length > 0) {
+        if (disponibileCars.length > 0) {
+          responseText += `⚠️ Nota: ${prossimamenteCars.length} di queste auto saranno disponibili prossimamente.\n\n`
+        } else {
+          responseText += `⚠️ Attenzione: ${prossimamenteCars.length === 1 ? 'Questa auto sarà disponibile' : 'Queste auto saranno disponibili'} prossimamente.\n\n`
+        }
+      }
       
       return {
         text: responseText,
@@ -172,7 +185,7 @@ export default function ChatBot() {
     // Se il messaggio sembra essere una ricerca auto ma non ha trovato risultati
     if (containsCarKeywords(message)) {
       return { 
-        text: `Mi dispiace, al momento non abbiamo l'auto che stai cercando nel nostro parco.\n\nNon ti preoccupare! Possiamo aiutarti a trovarla:\n\n📞 Chiamaci al 079 2638300\n📧 Scrivici a info@autocamb.it\n\nIl nostro team può cercare l'auto che desideri e contattarti non appena sarà disponibile. Offriamo anche il servizio "Cerca un'auto" per trovare modelli specifici!` 
+        text: `Mi dispiace, al momento non abbiamo l'auto che stai cercando nel nostro parco.\n\nNon ti preoccupare! Possiamo aiutarti a trovarla:\n\n📞 Chiamaci al 079 2638300\n📧 Scrivici a autocambss@gmail.com\n\nIl nostro team può cercare l'auto che desideri e contattarti non appena sarà disponibile. Offriamo anche il servizio "Cerca un'auto" per trovare modelli specifici!` 
       }
     }
     
@@ -276,9 +289,16 @@ export default function ChatBot() {
                         <div className="flex items-start gap-3">
                           <Car className="text-primary-600 flex-shrink-0 mt-0.5" size={20} />
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-primary-900 text-sm">
-                              {car.brand} {car.model}
-                            </p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-semibold text-primary-900 text-sm">
+                                {car.brand} {car.model}
+                              </p>
+                              {car.status === 'Prossimamente' && (
+                                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-medium">
+                                  Prossimamente
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-600 truncate">{car.version}</p>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-xs text-gray-500">{car.km.toLocaleString('it-IT')} km</span>

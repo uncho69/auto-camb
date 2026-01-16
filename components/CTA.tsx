@@ -31,7 +31,7 @@ export default function CTA() {
               Chiama ora
             </a>
             <a
-              href="mailto:info@autocamb.it"
+              href="mailto:autocambss@gmail.com"
               className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <Mail size={20} />

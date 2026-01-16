@@ -120,7 +120,7 @@ export default function CarDetail({ car }: CarDetailProps) {
                   Chiama ora
                 </a>
                 <a
-                  href="mailto:info@autocamb.it"
+                  href="mailto:autocambss@gmail.com"
                   className="flex-1 bg-white border-2 border-primary-600 text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition flex items-center justify-center gap-2"
                 >
                   <Mail size={20} />

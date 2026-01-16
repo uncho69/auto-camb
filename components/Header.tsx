@@ -28,11 +28,11 @@ export default function Header() {
                 <span className="font-medium">079 2638300</span>
               </a>
               <a 
-                href="mailto:info@autocamb.it" 
+                href="mailto:autocambss@gmail.com" 
                 className="flex items-center gap-2 hover:text-primary-400 transition-colors duration-200 group"
               >
                 <Mail size={16} className="group-hover:scale-110 transition-transform" />
-                <span className="font-medium">info@autocamb.it</span>
+                <span className="font-medium">autocambss@gmail.com</span>
               </a>
             </div>
             <div className="hidden md:flex gap-6">
