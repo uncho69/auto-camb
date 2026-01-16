@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, Car } from 'lucide-react'
+import { Send, Car, RefreshCw } from 'lucide-react'
 
-export default function CercaAutoPage() {
+export default function PermutaAutoPage() {
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -13,7 +13,7 @@ export default function CercaAutoPage() {
     messaggio: '',
     marca: '',
     modello: '',
-    km: '',
+    anno: '',
     privacy: false,
     marketing: false
   })
@@ -43,26 +43,32 @@ export default function CercaAutoPage() {
     setSubmitStatus('idle')
 
     try {
-      const response = await fetch('/api/car-requests', {
+      const requestData = {
+        nome: formData.nome,
+        cognome: formData.cognome,
+        email: formData.email,
+        telefono: formData.telefono,
+        cap: formData.cap,
+        messaggio: formData.messaggio || undefined,
+        marca: formData.marca?.trim() || undefined,
+        modello: formData.modello?.trim() || undefined,
+        anno: formData.anno?.trim() || undefined,
+      }
+      
+      console.log('Sending trade request:', requestData)
+      
+      const response = await fetch('/api/trade-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          nome: formData.nome,
-          cognome: formData.cognome,
-          email: formData.email,
-          telefono: formData.telefono,
-          cap: formData.cap,
-          messaggio: formData.messaggio || undefined,
-          marca: formData.marca || undefined,
-          modello: formData.modello || undefined,
-          km: formData.km || undefined,
-        }),
+        body: JSON.stringify(requestData),
       })
 
       if (!response.ok) {
-        throw new Error('Errore nell\'invio della richiesta')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || 'Errore nell\'invio della richiesta')
       }
 
       setIsSubmitting(false)
@@ -79,7 +85,7 @@ export default function CercaAutoPage() {
           messaggio: '',
           marca: '',
           modello: '',
-          km: '',
+          anno: '',
           privacy: false,
           marketing: false
         })
@@ -99,7 +105,10 @@ export default function CercaAutoPage() {
       <section className="bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Cerca un'auto</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Permutiamo la tua auto</h1>
+            <p className="text-xl text-primary-100">
+              Permutiamo la tua auto usata in Sardegna
+            </p>
           </div>
         </div>
       </section>
@@ -111,27 +120,34 @@ export default function CercaAutoPage() {
             {/* Description */}
             <div className="bg-white rounded-lg shadow-md p-8 mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-primary-900 mb-4">
-                Cerchi un'auto particolare? Noi la troviamo per te
+                Permutiamo la tua auto usata in Sardegna
               </h2>
               <p className="text-lg text-primary-800 mb-4">
-                Se stai cercando uno specifico modello di automobile e non riesci a trovare quello più adatto a te, faccelo sapere. Anche se non è presente nel nostro stock lo cercheremo e troveremo per te!
+                Siamo tra i pochi concessionari a ritirare la tua auto usata in Sardegna a fronte dell'acquisto di una nostra autovettura. Potrai quindi dare come anticipo per l'acquisto anche solo la tua attuale auto!
               </p>
-              <p className="text-primary-800">
-                Grazie alla nostra esperienza nel settore, siamo in grado di trovare auto di tutti i segmenti, dalle citycar alle berline, dai SUV alle station wagon.
-              </p>
-              <p className="text-primary-800 mt-4">
-                Per l'acquisto di <strong>auto usate e km0</strong> rivolgiti a AUTOCAMB.IT, siamo a <strong>Sassari</strong> ed <strong>Olbia</strong>. Compila il form e inviaci la tua richiesta inserendo la marca, il modello e il numero di km percorsi massimo, i nostri consulenti ti contatteranno quanto prima. Vieni a trovarci in Sardegna, ti aspettiamo!
+              
+              <div className="bg-primary-50 border-l-4 border-primary-600 p-4 my-6">
+                <p className="text-primary-800">
+                  Il valore attribuito alla tua auto sarà calcolato in base alla <strong>valutazione Quattroruote</strong> da cui ovviamente andranno detratti i costi che noi come Concessionaria dobbiamo sostenere per rivendere l'auto con <strong>Garanzia 12 mesi</strong> (riparazioni, rimborsi per eventuale eccedenza chilometrica rispetto alla media percorrenza, costi di garanzia, valutazione rivendibilità ecc.).
+                </p>
+              </div>
+
+              <p className="text-primary-800 mb-4">
+                Compila il form sottostante e inserisci i dati della tua auto. Un nostro consulente si metterà in contatto con te per darti una prima valutazione della tua auto e fissare un appuntamento a <strong>Sassari</strong>, <strong>Alghero</strong> o ad <strong>Olbia</strong>.
               </p>
             </div>
 
             {/* Form */}
             <div className="bg-white rounded-lg shadow-md p-8">
-              <h3 className="text-2xl font-bold text-primary-900 mb-6">Cerca la tua auto</h3>
+              <h3 className="text-2xl font-bold text-primary-900 mb-6 flex items-center gap-2">
+                <RefreshCw className="text-primary-600" size={28} />
+                Richiedi una valutazione per permuta
+              </h3>
               
               {submitStatus === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
                   <p className="font-semibold">Richiesta inviata con successo!</p>
-                  <p className="text-sm mt-1">Ti contatteremo al più presto.</p>
+                  <p className="text-sm mt-1">Ti contatteremo al più presto per una valutazione.</p>
                 </div>
               )}
 
@@ -229,6 +245,7 @@ export default function CercaAutoPage() {
                         value={formData.messaggio}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="Descrivi la tua auto o indica quale auto nuova ti interessa..."
                       />
                     </div>
                   </div>
@@ -270,17 +287,17 @@ export default function CercaAutoPage() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="km" className="block text-sm font-medium text-primary-900 mb-2">
-                        km
+                      <label htmlFor="anno" className="block text-sm font-medium text-primary-900 mb-2">
+                        Anno
                       </label>
                       <input
                         type="text"
-                        id="km"
-                        name="km"
-                        value={formData.km}
+                        id="anno"
+                        name="anno"
+                        value={formData.anno}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        placeholder="km massimi"
+                        placeholder="Anno di immatricolazione"
                       />
                     </div>
                   </div>
