@@ -44,13 +44,6 @@ export default function Header() {
                 News
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-200"></span>
               </Link>
-              <Link 
-                href="/confronta" 
-                className="hover:text-primary-400 transition-colors duration-200 font-medium relative group"
-              >
-                Confronta i veicoli (0)
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-200"></span>
-              </Link>
             </div>
           </div>
         </div>

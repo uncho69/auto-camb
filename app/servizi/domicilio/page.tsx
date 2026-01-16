@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Send, Home } from 'lucide-react'
+import Image from 'next/image'
 
 export default function DomicilioPage() {
   const [formData, setFormData] = useState({
@@ -101,6 +102,21 @@ export default function DomicilioPage() {
       <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Auto a domicilio</h1>
+        </div>
+      </div>
+
+      {/* Image Section */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src="/auto-domicilio.png"
+              alt="Auto a domicilio"
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
         </div>
       </div>
 

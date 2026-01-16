@@ -9,13 +9,13 @@ export default function DoveSiamoPage() {
       nome: 'Sassari',
       indirizzo: 'Zona Industriale Predda Niedda Sud, Str. 14, 4 - 07100 Sassari',
       telefono: '079 2638300',
-      email: 'c.leda@zunino.com',
+      email: 'autocambss@gmail.com',
     },
     {
       nome: 'Olbia',
       indirizzo: 'Zona Industriale Settore 7 - Via Filippine, 6 - 07026 Olbia (SS)',
       telefono: '3939790529',
-      email: 'g.pagano@zunino.com',
+      email: 'autocambss@gmail.com',
     },
   ]
 

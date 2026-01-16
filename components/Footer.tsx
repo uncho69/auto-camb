@@ -80,7 +80,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={18} />
-                <a href="mailto:c.leda@zunino.com" className="hover:text-white transition text-sm">c.leda@zunino.com</a>
+                <a href="mailto:autocambss@gmail.com" className="hover:text-white transition text-sm">autocambss@gmail.com</a>
               </li>
             </ul>
           </div>
@@ -99,7 +99,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={18} />
-                <a href="mailto:g.pagano@zunino.com" className="hover:text-white transition text-sm">g.pagano@zunino.com</a>
+                <a href="mailto:autocambss@gmail.com" className="hover:text-white transition text-sm">autocambss@gmail.com</a>
               </li>
             </ul>
           </div>
