@@ -40,14 +40,21 @@ export default function CarList({ initialFilters }: CarListProps) {
     return () => clearInterval(interval)
   }, [])
 
-  // Apply initial filters from URL params
+  // Apply initial filters from URL params (dopo che le auto sono caricate)
   useEffect(() => {
-    if (initialFilters) {
-      if (initialFilters.brand) setSelectedBrand(String(initialFilters.brand))
+    if (initialFilters && cars.length > 0) {
+      if (initialFilters.brand) {
+        const brandValue = String(initialFilters.brand).trim()
+        setSelectedBrand(brandValue)
+        // Se c'è una marca nei parametri, usala anche per la ricerca testuale
+        if (!searchTerm) {
+          setSearchTerm(brandValue)
+        }
+      }
       if (initialFilters.category) setSelectedCategory(String(initialFilters.category))
       if (initialFilters.model) setSearchTerm(String(initialFilters.model))
     }
-  }, [initialFilters])
+  }, [initialFilters, cars.length]) // Esegui quando le auto sono caricate
 
   const brands = useMemo(() => {
     const uniqueBrands = Array.from(new Set(cars.map(car => car.brand)))
@@ -61,18 +68,26 @@ export default function CarList({ initialFilters }: CarListProps) {
 
   const filteredCars = useMemo(() => {
     return cars.filter(car => {
+      // Ricerca testuale (case-insensitive)
+      const searchLower = searchTerm.toLowerCase().trim()
       const matchesSearch = 
-        car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.version.toLowerCase().includes(searchTerm.toLowerCase())
+        !searchLower ||
+        car.brand.toLowerCase().includes(searchLower) ||
+        car.model.toLowerCase().includes(searchLower) ||
+        car.version.toLowerCase().includes(searchLower)
       
-      const matchesBrand = !selectedBrand || car.brand === selectedBrand
+      // Filtro marca (case-insensitive, trim)
+      const brandLower = selectedBrand?.toLowerCase().trim() || ''
+      const matchesBrand = !selectedBrand || 
+        car.brand.toLowerCase().trim() === brandLower ||
+        car.brand.toLowerCase().trim().includes(brandLower)
+      
       const matchesCategory = !selectedCategory || car.category === selectedCategory
       const matchesFuel = !selectedFuel || car.fuel === selectedFuel
 
       return matchesSearch && matchesBrand && matchesCategory && matchesFuel
     })
-  }, [searchTerm, selectedBrand, selectedCategory, selectedFuel])
+  }, [cars, searchTerm, selectedBrand, selectedCategory, selectedFuel])
 
   const clearFilters = () => {
     setSearchTerm('')
