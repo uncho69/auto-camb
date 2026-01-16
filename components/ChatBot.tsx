@@ -317,7 +317,7 @@ export default function ChatBot() {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 bg-primary-600 text-white rounded-full p-4 shadow-2xl hover:bg-primary-700 hover:scale-110 transition-all duration-300 ${
+        className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 bg-primary-600 text-white rounded-full p-4 shadow-2xl hover:bg-primary-700 hover:scale-110 transition-all duration-300 ${
           isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100 animate-float'
         }`}
         aria-label="Apri chat"
@@ -327,7 +327,7 @@ export default function ChatBot() {
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300 ${
+        className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 w-[calc(100vw-2rem)] md:w-96 max-w-[calc(100vw-2rem)] md:max-w-none h-[calc(100vh-8rem)] md:h-[600px] max-h-[600px] bg-white rounded-lg shadow-2xl flex flex-col transition-all duration-300 ${
           isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'
         }`}
       >
