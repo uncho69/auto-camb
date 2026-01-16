@@ -377,13 +377,18 @@ export default function ChatBot() {
                     const parts: (string | JSX.Element)[] = []
                     let lastIndex = 0
                     
-                    // Pattern per link ai servizi
+                    // Pattern per link ai servizi (ordine importante: pattern più specifici prima)
                     const serviceLinks = [
                       { pattern: /"Cerca un'auto"/g, href: '/servizi/cerca-auto', text: '"Cerca un\'auto"' },
                       { pattern: /"Permutiamo la tua auto"/g, href: '/servizi/permuta', text: '"Permutiamo la tua auto"' },
                       { pattern: /"Compriamo la tua auto"/g, href: '/servizi/compra', text: '"Compriamo la tua auto"' },
+                      { pattern: /"Auto a domicilio"/g, href: '/servizi/domicilio', text: '"Auto a domicilio"' },
+                      { pattern: /"Servizio Navetta"/g, href: '/servizi/navetta', text: '"Servizio Navetta"' },
+                      { pattern: /Auto a domicilio/g, href: '/servizi/domicilio', text: 'Auto a domicilio' },
+                      { pattern: /Servizio Navetta/g, href: '/servizi/navetta', text: 'Servizio Navetta' },
                       { pattern: /Permutiamo la tua auto/g, href: '/servizi/permuta', text: 'Permutiamo la tua auto' },
                       { pattern: /Compriamo la tua auto/g, href: '/servizi/compra', text: 'Compriamo la tua auto' },
+                      { pattern: /Cerca un'auto/g, href: '/servizi/cerca-auto', text: 'Cerca un\'auto' },
                     ]
                     
                     // Pattern per email
@@ -433,8 +438,42 @@ export default function ChatBot() {
                     // Ordina per indice
                     matches.sort((a, b) => a.index - b.index)
                     
+                    // Rimuovi match sovrapposti (mantieni solo il più lungo o più specifico)
+                    const filteredMatches: typeof matches = []
+                    for (let i = 0; i < matches.length; i++) {
+                      const current = matches[i]
+                      let shouldAdd = true
+                      
+                      // Controlla se si sovrappone con un match già aggiunto
+                      for (let j = 0; j < filteredMatches.length; j++) {
+                        const prev = filteredMatches[j]
+                        const currentEnd = current.index + current.length
+                        const prevEnd = prev.index + prev.length
+                        
+                        // Se si sovrappongono completamente o parzialmente
+                        if ((current.index >= prev.index && current.index < prevEnd) ||
+                            (prev.index >= current.index && prev.index < currentEnd) ||
+                            (current.index === prev.index && current.length === prev.length)) {
+                          // Mantieni il match più lungo o quello con le virgolette (più specifico)
+                          if (current.length > prev.length || 
+                              (current.length === prev.length && current.text.includes('"'))) {
+                            filteredMatches[j] = current
+                          }
+                          shouldAdd = false
+                          break
+                        }
+                      }
+                      
+                      if (shouldAdd) {
+                        filteredMatches.push(current)
+                      }
+                    }
+                    
+                    // Riordina dopo il filtraggio
+                    filteredMatches.sort((a, b) => a.index - b.index)
+                    
                     // Costruisci il risultato
-                    matches.forEach((match, i) => {
+                    filteredMatches.forEach((match, i) => {
                       // Aggiungi testo prima del match
                       if (match.index > lastIndex) {
                         parts.push(text.substring(lastIndex, match.index))
