@@ -105,9 +105,6 @@ export default function CompraAutoPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Compriamo la tua auto</h1>
-            <p className="text-xl text-primary-100">
-              Vendi la tua auto usata alla concessionaria AUTOCAMB.IT in Sardegna
-            </p>
           </div>
         </div>
       </section>

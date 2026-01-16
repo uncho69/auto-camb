@@ -101,9 +101,6 @@ export default function NavettaPage() {
       <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Servizio Navetta</h1>
-          <p className="text-xl text-primary-100">
-            Servizio navetta concessionaria AUTOCAMB.IT in Sardegna
-          </p>
         </div>
       </div>
 

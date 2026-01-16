@@ -106,9 +106,6 @@ export default function PermutaAutoPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Permutiamo la tua auto</h1>
-            <p className="text-xl text-primary-100">
-              Permutiamo la tua auto usata in Sardegna
-            </p>
           </div>
         </div>
       </section>

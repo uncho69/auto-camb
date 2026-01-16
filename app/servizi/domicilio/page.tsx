@@ -101,9 +101,6 @@ export default function DomicilioPage() {
       <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Auto a domicilio</h1>
-          <p className="text-xl text-primary-100">
-            AUTOCAMB.IT offre test drive a domicilio a Sassari, Alghero ed Olbia
-          </p>
         </div>
       </div>
 
