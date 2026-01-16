@@ -69,52 +69,42 @@ export default function AdminDashboard() {
 
   const handleSaveCar = async (car: Car) => {
     try {
+      // Prepara i dati rimuovendo l'id se è una nuova auto
+      const carData: Omit<Car, 'id'> = {
+        brand: car.brand,
+        model: car.model,
+        version: car.version,
+        year: car.year,
+        km: car.km,
+        fuel: car.fuel,
+        price: car.price,
+        image: car.image,
+        consumption: car.consumption,
+        co2: car.co2 || 0, // Default a 0 se non specificato
+        emissionClass: car.emissionClass || '', // Default a stringa vuota se non specificato
+        category: car.category,
+        status: car.status,
+        tags: car.tags || [],
+        description: car.description || '',
+      }
+
       if (editingCar && car.id) {
         // Modifica auto esistente
-        await updateCar(car.id, {
-          brand: car.brand,
-          model: car.model,
-          version: car.version,
-          year: car.year,
-          km: car.km,
-          fuel: car.fuel,
-          price: car.price,
-          image: car.image,
-          consumption: car.consumption,
-          co2: car.co2,
-          emissionClass: car.emissionClass,
-          category: car.category,
-          status: car.status,
-          tags: car.tags,
-          description: car.description,
-        })
+        console.log('Updating car:', car.id, carData)
+        await updateCar(car.id, carData)
       } else {
         // Aggiungi nuova auto (verrà aggiunta in cima dal database per created_at DESC)
-        await createCar({
-          brand: car.brand,
-          model: car.model,
-          version: car.version,
-          year: car.year,
-          km: car.km,
-          fuel: car.fuel,
-          price: car.price,
-          image: car.image,
-          consumption: car.consumption,
-          co2: car.co2,
-          emissionClass: car.emissionClass,
-          category: car.category,
-          status: car.status,
-          tags: car.tags,
-          description: car.description,
-        })
+        console.log('Creating new car:', carData)
+        await createCar(carData)
       }
       // Ricarica le auto dal database
       await loadCars()
       setShowForm(false)
       setEditingCar(null)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving car:', error)
-      alert('Errore nel salvataggio dell\'auto. Riprova.')
+      const errorMessage = error?.message || 'Errore nel salvataggio dell\'auto. Riprova.'
+      alert(errorMessage)
     }
   }
 

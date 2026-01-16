@@ -41,6 +41,8 @@ export async function getCar(id: string): Promise<Car | null> {
 
 // POST - Aggiungi una nuova auto
 export async function createCar(car: Omit<Car, 'id'>): Promise<Car> {
+  console.log('Creating car:', car)
+  
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
@@ -51,10 +53,13 @@ export async function createCar(car: Omit<Car, 'id'>): Promise<Car> {
   
   if (!response.ok) {
     const error = await response.json()
+    console.error('Error response:', error)
     throw new Error(error.error || 'Failed to create car')
   }
   
-  return await response.json()
+  const result = await response.json()
+  console.log('Car created successfully:', result)
+  return result
 }
 
 // PUT - Aggiorna un'auto
