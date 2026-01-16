@@ -34,6 +34,7 @@ export default function ChatBot() {
       try {
         const loadedCars = await getCars()
         setCars(loadedCars)
+        console.log('ChatBot: Caricate', loadedCars.length, 'auto dal database')
       } catch (error) {
         console.error('Error loading cars:', error)
       }
@@ -46,6 +47,21 @@ export default function ChatBot() {
     
     return () => clearInterval(interval)
   }, [])
+
+  // Ricarica le auto quando si apre la chat per avere dati freschi
+  useEffect(() => {
+    if (isOpen) {
+      const loadCars = async () => {
+        try {
+          const loadedCars = await getCars()
+          setCars(loadedCars)
+        } catch (error) {
+          console.error('Error loading cars:', error)
+        }
+      }
+      loadCars()
+    }
+  }, [isOpen])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -102,20 +118,24 @@ export default function ChatBot() {
 
   const searchCars = (query: string): CarType[] => {
     const lowerQuery = query.toLowerCase().trim()
-    const queryWords = lowerQuery.split(/\s+/)
+    if (!lowerQuery || lowerQuery.length < 2) return []
+    
+    const queryWords = lowerQuery.split(/\s+/).filter(word => word.length >= 2)
+    if (queryWords.length === 0) return []
     
     return cars.filter(car => {
       const searchableText = `${car.brand} ${car.model} ${car.version} ${car.fuel} ${car.category}`.toLowerCase()
       
-      // Cerca corrispondenze esatte o parziali
-      const matches = queryWords.some(word => {
-        if (word.length < 2) return false
+      // Cerca corrispondenze esatte o parziali per ogni parola della query
+      const matches = queryWords.every(word => {
         return searchableText.includes(word) || 
                car.brand.toLowerCase().includes(word) ||
-               car.model.toLowerCase().includes(word)
+               car.model.toLowerCase().includes(word) ||
+               car.version.toLowerCase().includes(word)
       })
       
-      return matches && car.status === 'Disponibile'
+      // Mostra tutte le auto (Disponibile, Prossimamente, Venduto)
+      return matches
     })
   }
 
