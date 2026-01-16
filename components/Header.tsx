@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, Phone, Mail } from 'lucide-react'
+import { Menu, X, Phone, Mail, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [serviziSubmenuOpen, setServiziSubmenuOpen] = useState(false)
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -123,7 +124,12 @@ export default function Header() {
           <div className="md:hidden flex justify-center">
             <button
               className="text-primary-800"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen)
+                if (mobileMenuOpen) {
+                  setServiziSubmenuOpen(false)
+                }
+              }}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -131,20 +137,105 @@ export default function Header() {
 
           {/* Mobile menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 space-y-2">
-              <Link href="/auto" className="block py-2 text-center text-primary-800 hover:text-primary-600">
+            <div className="md:hidden mt-4 pb-4 space-y-1">
+              <Link 
+                href="/auto" 
+                className="block py-3 px-4 text-center text-primary-800 hover:bg-primary-50 hover:text-primary-600 transition rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Auto Usate
               </Link>
-              <Link href="/km0" className="block py-2 text-center text-primary-800 hover:text-primary-600">
+              <Link 
+                href="/km0" 
+                className="block py-3 px-4 text-center text-primary-800 hover:bg-primary-50 hover:text-primary-600 transition rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Auto Km0
               </Link>
-              <Link href="/servizi" className="block py-2 text-center text-primary-800 hover:text-primary-600">
-                Servizi di cortesia
-              </Link>
-              <Link href="/chi-siamo" className="block py-2 text-center text-primary-800 hover:text-primary-600">
+              
+              {/* Servizi di cortesia con sottomenu */}
+              <div className="space-y-1">
+                <button
+                  onClick={() => setServiziSubmenuOpen(!serviziSubmenuOpen)}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 text-primary-800 hover:bg-primary-50 transition rounded-lg"
+                >
+                  <span>Servizi di cortesia</span>
+                  {serviziSubmenuOpen ? (
+                    <ChevronUp size={20} className="text-primary-600" />
+                  ) : (
+                    <ChevronDown size={20} className="text-primary-600" />
+                  )}
+                </button>
+                
+                {/* Sottomenu Servizi */}
+                {serviziSubmenuOpen && (
+                  <div className="bg-white border border-gray-200 rounded-lg shadow-md mx-4 mt-2 mb-2 overflow-hidden">
+                    <Link 
+                      href="/servizi/navetta" 
+                      className="block py-3 px-4 text-primary-800 hover:bg-primary-50 transition border-b border-gray-100"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setServiziSubmenuOpen(false)
+                      }}
+                    >
+                      Servizio Navetta
+                    </Link>
+                    <Link 
+                      href="/servizi/domicilio" 
+                      className="block py-3 px-4 text-primary-800 hover:bg-primary-50 transition border-b border-gray-100"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setServiziSubmenuOpen(false)
+                      }}
+                    >
+                      Auto a domicilio
+                    </Link>
+                    <Link 
+                      href="/servizi/permuta" 
+                      className="block py-3 px-4 text-primary-800 hover:bg-primary-50 transition border-b border-gray-100"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setServiziSubmenuOpen(false)
+                      }}
+                    >
+                      Permutiamo la tua auto
+                    </Link>
+                    <Link 
+                      href="/servizi/compra" 
+                      className="block py-3 px-4 text-primary-800 hover:bg-primary-50 transition border-b border-gray-100"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setServiziSubmenuOpen(false)
+                      }}
+                    >
+                      Compriamo la tua auto
+                    </Link>
+                    <Link 
+                      href="/servizi/cerca-auto" 
+                      className="block py-3 px-4 text-primary-800 hover:bg-primary-50 transition"
+                      onClick={() => {
+                        setMobileMenuOpen(false)
+                        setServiziSubmenuOpen(false)
+                      }}
+                    >
+                      Cerca un'auto
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              <Link 
+                href="/chi-siamo" 
+                className="block py-3 px-4 text-center text-primary-800 hover:bg-primary-50 hover:text-primary-600 transition rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Chi siamo
               </Link>
-              <Link href="/dove-siamo" className="block py-2 text-center text-primary-800 hover:text-primary-600">
+              <Link 
+                href="/dove-siamo" 
+                className="block py-3 px-4 text-center text-primary-800 hover:bg-primary-50 hover:text-primary-600 transition rounded-lg"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 Dove siamo
               </Link>
             </div>
