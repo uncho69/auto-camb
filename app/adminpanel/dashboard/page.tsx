@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Car } from '@/types/car'
-import { getCars, saveCars } from '@/lib/carsStorage'
+import { getCars, createCar, updateCar, deleteCar } from '@/lib/carsApi'
 import AdminCarList from '@/components/admin/AdminCarList'
 import AdminCarForm from '@/components/admin/AdminCarForm'
 import { Plus, LogOut } from 'lucide-react'
@@ -24,21 +24,19 @@ export default function AdminDashboard() {
     } else {
       setAuthenticated(true)
       setLoading(false)
-      // Carica le auto da localStorage
-      setCarsList(getCars())
+      // Carica le auto dal database
+      loadCars()
     }
   }, [router])
 
-  useEffect(() => {
-    // Verifica autenticazione
-    const isAuth = sessionStorage.getItem('admin_authenticated') === 'true'
-    if (!isAuth) {
-      router.push('/adminpanel')
-    } else {
-      setAuthenticated(true)
-      setLoading(false)
+  const loadCars = async () => {
+    try {
+      const cars = await getCars()
+      setCarsList(cars)
+    } catch (error) {
+      console.error('Error loading cars:', error)
     }
-  }, [router])
+  }
 
   const handleLogout = () => {
     sessionStorage.removeItem('admin_authenticated')
@@ -56,31 +54,68 @@ export default function AdminDashboard() {
     setShowForm(true)
   }
 
-  const handleDeleteCar = (carId: string) => {
+  const handleDeleteCar = async (carId: string) => {
     if (confirm('Sei sicuro di voler eliminare questa auto?')) {
-      const updatedCars = carsList.filter(car => car.id !== carId)
-      setCarsList(updatedCars)
-      saveCars(updatedCars)
-      // Forza il refresh della pagina per aggiornare i componenti
-      window.dispatchEvent(new Event('carsUpdated'))
+      try {
+        await deleteCar(carId)
+        // Ricarica le auto dal database
+        await loadCars()
+      } catch (error) {
+        console.error('Error deleting car:', error)
+        alert('Errore nell\'eliminazione dell\'auto. Riprova.')
+      }
     }
   }
 
-  const handleSaveCar = (car: Car) => {
-    let updatedCars: Car[]
-    if (editingCar) {
-      // Modifica auto esistente - mantieni la posizione
-      updatedCars = carsList.map(c => c.id === car.id ? car : c)
-    } else {
-      // Aggiungi nuova auto IN CIMA alla lista
-      updatedCars = [car, ...carsList]
+  const handleSaveCar = async (car: Car) => {
+    try {
+      if (editingCar && car.id) {
+        // Modifica auto esistente
+        await updateCar(car.id, {
+          brand: car.brand,
+          model: car.model,
+          version: car.version,
+          year: car.year,
+          km: car.km,
+          fuel: car.fuel,
+          price: car.price,
+          image: car.image,
+          consumption: car.consumption,
+          co2: car.co2,
+          emissionClass: car.emissionClass,
+          category: car.category,
+          status: car.status,
+          tags: car.tags,
+          description: car.description,
+        })
+      } else {
+        // Aggiungi nuova auto (verrà aggiunta in cima dal database per created_at DESC)
+        await createCar({
+          brand: car.brand,
+          model: car.model,
+          version: car.version,
+          year: car.year,
+          km: car.km,
+          fuel: car.fuel,
+          price: car.price,
+          image: car.image,
+          consumption: car.consumption,
+          co2: car.co2,
+          emissionClass: car.emissionClass,
+          category: car.category,
+          status: car.status,
+          tags: car.tags,
+          description: car.description,
+        })
+      }
+      // Ricarica le auto dal database
+      await loadCars()
+      setShowForm(false)
+      setEditingCar(null)
+    } catch (error) {
+      console.error('Error saving car:', error)
+      alert('Errore nel salvataggio dell\'auto. Riprova.')
     }
-    setCarsList(updatedCars)
-    saveCars(updatedCars)
-    setShowForm(false)
-    setEditingCar(null)
-    // Forza il refresh della pagina per aggiornare i componenti
-    window.dispatchEvent(new Event('carsUpdated'))
   }
 
   if (loading) {

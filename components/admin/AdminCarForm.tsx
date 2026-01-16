@@ -39,7 +39,7 @@ export default function AdminCarForm({ car, onSave, onCancel }: AdminCarFormProp
     e.preventDefault()
     
     const newCar: Car = {
-      id: car?.id || `car-${Date.now()}`,
+      id: car?.id || '', // L'ID verrà generato dal database se è una nuova auto
       brand: formData.brand || '',
       model: formData.model || '',
       version: formData.version || '',

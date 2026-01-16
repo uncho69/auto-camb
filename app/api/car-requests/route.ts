@@ -7,8 +7,13 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // POST - Crea una nuova richiesta e invia email
 export async function POST(request: NextRequest) {
+  console.log('=== CAR REQUEST API CALLED ===')
+  console.log('Request URL:', request.url)
+  console.log('Request method:', request.method)
+  
   try {
     const carRequest: Omit<CarRequest, 'id' | 'createdAt'> = await request.json()
+    console.log('Car request received:', JSON.stringify(carRequest, null, 2))
 
     // Salva nel database
     const { data: savedRequest, error: dbError } = await supabaseAdmin
@@ -23,7 +28,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Invia email
-    const adminEmail = process.env.ADMIN_EMAIL || 'info@autocamb.it'
+    const adminEmail = process.env.ADMIN_EMAIL || 'autocambss@gmail.com'
+    const resendApiKey = process.env.RESEND_API_KEY
+    
+    console.log('Email configuration:', {
+      adminEmail,
+      hasResendKey: !!resendApiKey,
+      resendKeyLength: resendApiKey?.length || 0
+    })
+    
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY is missing!')
+    }
     
     try {
       const emailResult = await resend.emails.send({

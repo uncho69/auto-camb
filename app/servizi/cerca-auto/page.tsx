@@ -43,27 +43,38 @@ export default function CercaAutoPage() {
     setSubmitStatus('idle')
 
     try {
+      const requestData = {
+        nome: formData.nome,
+        cognome: formData.cognome,
+        email: formData.email,
+        telefono: formData.telefono,
+        cap: formData.cap,
+        messaggio: formData.messaggio || undefined,
+        marca: formData.marca || undefined,
+        modello: formData.modello || undefined,
+        km: formData.km || undefined,
+      }
+      
+      console.log('Sending car request:', requestData)
+      
       const response = await fetch('/api/car-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          nome: formData.nome,
-          cognome: formData.cognome,
-          email: formData.email,
-          telefono: formData.telefono,
-          cap: formData.cap,
-          messaggio: formData.messaggio || undefined,
-          marca: formData.marca || undefined,
-          modello: formData.modello || undefined,
-          km: formData.km || undefined,
-        }),
+        body: JSON.stringify(requestData),
       })
 
+      console.log('Response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error('Errore nell\'invio della richiesta')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || 'Errore nell\'invio della richiesta')
       }
+      
+      const result = await response.json()
+      console.log('Request saved successfully:', result)
 
       setIsSubmitting(false)
       setSubmitStatus('success')
