@@ -193,7 +193,7 @@ export default function ChatBot() {
       return {
         text: responseText,
         cars: carList,
-        moreCount: moreCount > 0 ? moreCount : 0
+        moreCount: moreCount > 0 ? moreCount : undefined
       }
     }
     
@@ -219,13 +219,50 @@ export default function ChatBot() {
       return { text: 'Tutte le nostre auto usate sono garantite e controllate. Ogni veicolo passa un\'ispezione completa prima della vendita.' }
     }
     if (lowerMessage.includes('permuta') || lowerMessage.includes('permut')) {
-      return { text: 'Sì! Permutiamo la tua auto usata. Possiamo valutarla e darti un\'offerta. Vuoi maggiori informazioni?' }
+      return { 
+        text: 'Sì! Permutiamo la tua auto usata. Possiamo valutarla e darti un\'offerta.\n\nVuoi maggiori informazioni? Vai al servizio "Permutiamo la tua auto" per compilare il form e richiedere una valutazione!' 
+      }
     }
-    if (lowerMessage.includes('ciao') || lowerMessage.includes('salve') || lowerMessage.includes('buongiorno')) {
-      return { text: 'Ciao! Sono qui per aiutarti a trovare l\'auto perfetta. Dimmi quale marca o modello stai cercando!' }
+    // Contatto e supporto
+    if (lowerMessage.includes('contatto') || lowerMessage.includes('supporto') || 
+        lowerMessage.includes('aiuto') || lowerMessage.includes('help') ||
+        lowerMessage.includes('assistenza') || lowerMessage.includes('info')) {
+      return { 
+        text: 'Siamo qui per aiutarti! Puoi contattarci:\n\n📞 Telefono: 079 2638300\n📧 Email: autocambss@gmail.com\n\nOppure visita le nostre pagine servizi per compilare i form online!' 
+      }
     }
     
-    return { text: 'Grazie per il tuo messaggio! Dimmi quale auto stai cercando (marca, modello) e ti mostrerò le disponibilità. Oppure chiamaci al 079 2638300 per informazioni dettagliate!' }
+    // Compriamo auto
+    if (lowerMessage.includes('vendo') || lowerMessage.includes('vendere') || 
+        lowerMessage.includes('compro') || lowerMessage.includes('comprare') ||
+        lowerMessage.includes('valutazione') || lowerMessage.includes('valutare')) {
+      return { 
+        text: 'Vuoi vendere la tua auto? Offriamo un servizio di valutazione e acquisto!\n\nVai al servizio "Compriamo la tua auto" per richiedere una valutazione gratuita!' 
+      }
+    }
+    
+    // Servizi
+    if (lowerMessage.includes('servizi') || lowerMessage.includes('servizio')) {
+      return { 
+        text: 'Offriamo diversi servizi:\n\n🔍 "Cerca un\'auto" - Cerchiamo l\'auto che desideri\n💰 "Compriamo la tua auto" - Valutazione e acquisto\n🔄 "Permutiamo la tua auto" - Permuta con una delle nostre auto\n\nClicca sui link per accedere ai form!' 
+      }
+    }
+    
+    // Orari e ubicazione
+    if (lowerMessage.includes('orari') || lowerMessage.includes('aperto') || 
+        lowerMessage.includes('chiuso') || lowerMessage.includes('dove') ||
+        lowerMessage.includes('sede') || lowerMessage.includes('indirizzo')) {
+      return { 
+        text: 'Per informazioni su orari, ubicazione e visite, contattaci:\n\n📞 079 2638300\n📧 autocambss@gmail.com\n\nSaremo felici di darti tutte le informazioni!' 
+      }
+    }
+    
+    if (lowerMessage.includes('ciao') || lowerMessage.includes('salve') || 
+        lowerMessage.includes('buongiorno') || lowerMessage.includes('buonasera')) {
+      return { text: 'Ciao! Sono qui per aiutarti a trovare l\'auto perfetta. Dimmi quale marca o modello stai cercando, oppure chiedimi informazioni sui nostri servizi!' }
+    }
+    
+    return { text: 'Grazie per il tuo messaggio! Dimmi quale auto stai cercando (marca, modello) e ti mostrerò le disponibilità. Oppure chiamaci al 079 2638300 o scrivi a autocambss@gmail.com per informazioni dettagliate!' }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -295,22 +332,109 @@ export default function ChatBot() {
                 }`}
               >
                 <div className="text-sm whitespace-pre-line">
-                  {message.text.split('"Cerca un\'auto"').map((part, index, array) => {
-                    if (index === array.length - 1) {
-                      return <span key={index}>{part}</span>
+                  {(() => {
+                    let text = message.text
+                    const parts: (string | JSX.Element)[] = []
+                    let lastIndex = 0
+                    
+                    // Pattern per link ai servizi
+                    const serviceLinks = [
+                      { pattern: /"Cerca un'auto"/g, href: '/servizi/cerca-auto', text: '"Cerca un\'auto"' },
+                      { pattern: /"Permutiamo la tua auto"/g, href: '/servizi/permuta', text: '"Permutiamo la tua auto"' },
+                      { pattern: /"Compriamo la tua auto"/g, href: '/servizi/compra', text: '"Compriamo la tua auto"' },
+                      { pattern: /Permutiamo la tua auto/g, href: '/servizi/permuta', text: 'Permutiamo la tua auto' },
+                      { pattern: /Compriamo la tua auto/g, href: '/servizi/compra', text: 'Compriamo la tua auto' },
+                    ]
+                    
+                    // Pattern per email
+                    const emailPattern = /autocambss@gmail\.com/g
+                    
+                    // Pattern per telefono
+                    const phonePattern = /079\s*2638300/g
+                    
+                    // Trova tutte le occorrenze
+                    const matches: Array<{ index: number; length: number; type: 'service' | 'email' | 'phone'; href?: string; text: string }> = []
+                    
+                    serviceLinks.forEach(link => {
+                      let match
+                      while ((match = link.pattern.exec(text)) !== null) {
+                        matches.push({
+                          index: match.index,
+                          length: match[0].length,
+                          type: 'service',
+                          href: link.href,
+                          text: link.text
+                        })
+                      }
+                    })
+                    
+                    let emailMatch
+                    while ((emailMatch = emailPattern.exec(text)) !== null) {
+                      matches.push({
+                        index: emailMatch.index,
+                        length: emailMatch[0].length,
+                        type: 'email',
+                        href: `mailto:${emailMatch[0]}`,
+                        text: emailMatch[0]
+                      })
                     }
-                    return (
-                      <span key={index}>
-                        {part}
-                        <Link
-                          href="/servizi/cerca-auto"
-                          className="text-primary-600 hover:text-primary-700 underline font-medium"
-                        >
-                          "Cerca un'auto"
-                        </Link>
-                      </span>
-                    )
-                  })}
+                    
+                    let phoneMatch
+                    while ((phoneMatch = phonePattern.exec(text)) !== null) {
+                      matches.push({
+                        index: phoneMatch.index,
+                        length: phoneMatch[0].length,
+                        type: 'phone',
+                        href: `tel:0792638300`,
+                        text: phoneMatch[0]
+                      })
+                    }
+                    
+                    // Ordina per indice
+                    matches.sort((a, b) => a.index - b.index)
+                    
+                    // Costruisci il risultato
+                    matches.forEach((match, i) => {
+                      // Aggiungi testo prima del match
+                      if (match.index > lastIndex) {
+                        parts.push(text.substring(lastIndex, match.index))
+                      }
+                      
+                      // Aggiungi il link
+                      if (match.href) {
+                        if (match.type === 'email' || match.type === 'phone') {
+                          parts.push(
+                            <a
+                              key={`link-${i}`}
+                              href={match.href}
+                              className="text-primary-600 hover:text-primary-700 underline font-medium"
+                            >
+                              {match.text}
+                            </a>
+                          )
+                        } else {
+                          parts.push(
+                            <Link
+                              key={`link-${i}`}
+                              href={match.href}
+                              className="text-primary-600 hover:text-primary-700 underline font-medium"
+                            >
+                              {match.text}
+                            </Link>
+                          )
+                        }
+                      }
+                      
+                      lastIndex = match.index + match.length
+                    })
+                    
+                    // Aggiungi testo finale
+                    if (lastIndex < text.length) {
+                      parts.push(text.substring(lastIndex))
+                    }
+                    
+                    return parts.length > 0 ? parts : [text]
+                  })()}
                 </div>
                 
                 {/* Auto cards se presenti */}
@@ -349,7 +473,7 @@ export default function ChatBot() {
                         </div>
                       </Link>
                     ))}
-                    {message.moreCount && message.moreCount > 0 && (
+                    {message.moreCount !== undefined && message.moreCount > 0 && (
                       <Link
                         href="/auto"
                         className="block text-center text-sm text-primary-600 hover:text-primary-700 font-medium mt-2"

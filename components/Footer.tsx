@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         {/* Partita IVA */}
         <div className="text-center mb-8 pb-8 border-b border-gray-800">
-          <p className="text-gray-400">Partita IVA 01015250903</p>
+          <p className="text-gray-400">Partita IVA 18335651008</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
