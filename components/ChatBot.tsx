@@ -166,9 +166,100 @@ export default function ChatBot() {
   }
 
   const getBotResponse = (message: string): { text: string; cars?: CarType[]; moreCount?: number } => {
-    const lowerMessage = message.toLowerCase()
+    const lowerMessage = message.toLowerCase().trim()
     
-    // Cerca auto nel messaggio
+    // PRIMA: Controlla le parole chiave specifiche per servizi e supporto
+    // (questi devono essere controllati PRIMA della ricerca auto)
+    
+    // Permuta
+    if (lowerMessage.includes('permuta') || lowerMessage.includes('permut') || 
+        lowerMessage.includes('scambio') || lowerMessage.includes('cambio auto')) {
+      return { 
+        text: 'Sì! Permutiamo la tua auto usata. Possiamo valutarla e darti un\'offerta.\n\nVuoi maggiori informazioni? Vai al servizio "Permutiamo la tua auto" per compilare il form e richiedere una valutazione!' 
+      }
+    }
+    
+    // Contatto, supporto, assistenza
+    if (lowerMessage.includes('contatto') || lowerMessage.includes('supporto') || 
+        lowerMessage.includes('aiuto') || lowerMessage.includes('help') ||
+        lowerMessage.includes('assistenza') || lowerMessage.includes('info') ||
+        lowerMessage.includes('contattar') || lowerMessage.includes('contattaci') ||
+        lowerMessage === 'aiuto' || lowerMessage === 'supporto' || lowerMessage === 'assistenza') {
+      return { 
+        text: 'Siamo qui per aiutarti! Puoi contattarci:\n\n📞 Telefono: 079 2638300\n📧 Email: autocambss@gmail.com\n\nOppure visita le nostre pagine servizi per compilare i form online!' 
+      }
+    }
+    
+    // Compriamo auto / Vendita
+    if (lowerMessage.includes('vendo') || lowerMessage.includes('vendere') || 
+        lowerMessage.includes('compro') || lowerMessage.includes('comprare') ||
+        lowerMessage.includes('valutazione') || lowerMessage.includes('valutare') ||
+        lowerMessage.includes('acquisto auto')) {
+      return { 
+        text: 'Vuoi vendere la tua auto? Offriamo un servizio di valutazione e acquisto!\n\nVai al servizio "Compriamo la tua auto" per richiedere una valutazione gratuita!' 
+      }
+    }
+    
+    // Servizi
+    if (lowerMessage.includes('servizi') || lowerMessage.includes('servizio') ||
+        lowerMessage.includes('cosa offrite') || lowerMessage.includes('cosa fate')) {
+      return { 
+        text: 'Offriamo diversi servizi:\n\n🔍 "Cerca un\'auto" - Cerchiamo l\'auto che desideri\n💰 "Compriamo la tua auto" - Valutazione e acquisto\n🔄 "Permutiamo la tua auto" - Permuta con una delle nostre auto\n🚗 "Auto a domicilio" - Test drive a domicilio\n🚐 "Servizio Navetta" - Navetta gratuita verso il centro\n\nClicca sui link per accedere ai form!' 
+      }
+    }
+    
+    // Navetta
+    if (lowerMessage.includes('navetta') || lowerMessage.includes('trasporto') ||
+        lowerMessage.includes('portare in città')) {
+      return {
+        text: 'Offriamo il servizio navetta gratuito verso il centro città!\n\nLascia la tua auto ai nostri esperti e torna subito in città. Vai al servizio "Servizio Navetta" per richiedere informazioni!'
+      }
+    }
+    
+    // Auto a domicilio
+    if (lowerMessage.includes('domicilio') || lowerMessage.includes('a casa') ||
+        lowerMessage.includes('test drive') || lowerMessage.includes('prova a casa')) {
+      return {
+        text: 'Offriamo test drive a domicilio! Ti portiamo l\'auto a casa per la prova.\n\nVai al servizio "Auto a domicilio" per prenotare un appuntamento!'
+      }
+    }
+    
+    // Orari e ubicazione
+    if (lowerMessage.includes('orari') || lowerMessage.includes('aperto') || 
+        lowerMessage.includes('chiuso') || lowerMessage.includes('dove') ||
+        lowerMessage.includes('sede') || lowerMessage.includes('indirizzo') ||
+        lowerMessage.includes('ubicazione') || lowerMessage.includes('posizione')) {
+      return { 
+        text: 'Per informazioni su orari, ubicazione e visite, contattaci:\n\n📞 079 2638300\n📧 autocambss@gmail.com\n\nSaremo felici di darti tutte le informazioni!' 
+      }
+    }
+    
+    // Prezzo
+    if (lowerMessage.includes('prezzo') || lowerMessage.includes('costo') ||
+        lowerMessage.includes('quanto costa') || lowerMessage.includes('prezzi')) {
+      return { text: 'I nostri prezzi sono competitivi e trasparenti. Puoi vedere tutti i prezzi direttamente sul sito. Vuoi informazioni su un modello specifico? Dimmi quale auto ti interessa!' }
+    }
+    
+    // Finanziamento
+    if (lowerMessage.includes('finanziamento') || lowerMessage.includes('rata') ||
+        lowerMessage.includes('rate') || lowerMessage.includes('pagamento rateale')) {
+      return { text: 'Offriamo diverse soluzioni di finanziamento. Contattaci al 079 2638300 per una consulenza personalizzata!' }
+    }
+    
+    // Garanzia
+    if (lowerMessage.includes('garanzia') || lowerMessage.includes('garantit') ||
+        lowerMessage.includes('garant')) {
+      return { text: 'Tutte le nostre auto usate sono garantite e controllate. Ogni veicolo passa un\'ispezione completa prima della vendita.' }
+    }
+    
+    // Saluti
+    if (lowerMessage.includes('ciao') || lowerMessage.includes('salve') || 
+        lowerMessage.includes('buongiorno') || lowerMessage.includes('buonasera') ||
+        lowerMessage.includes('buon pomeriggio') || lowerMessage === 'ciao' || lowerMessage === 'salve') {
+      return { text: 'Ciao! Sono qui per aiutarti a trovare l\'auto perfetta. Dimmi quale marca o modello stai cercando, oppure chiedimi informazioni sui nostri servizi!' }
+    }
+    
+    // POI: Cerca auto nel database (solo se non è una richiesta di servizio)
     const foundCars = searchCars(message)
     
     if (foundCars.length > 0) {
@@ -198,9 +289,11 @@ export default function ChatBot() {
     }
     
     // Se il messaggio sembra essere una ricerca auto ma non ha trovato risultati
-    // Cerca sempre nel database prima di decidere se è una ricerca auto
     const seemsLikeCarSearch = containsCarKeywords(message) || 
-                                message.trim().split(/\s+/).length <= 3
+                                (message.trim().split(/\s+/).length <= 3 && 
+                                 !lowerMessage.includes('servizio') && 
+                                 !lowerMessage.includes('aiuto') &&
+                                 !lowerMessage.includes('info'))
     
     if (seemsLikeCarSearch) {
       return { 
@@ -208,60 +301,7 @@ export default function ChatBot() {
       }
     }
     
-    // Risposte standard
-    if (lowerMessage.includes('prezzo') || lowerMessage.includes('costo')) {
-      return { text: 'I nostri prezzi sono competitivi e trasparenti. Puoi vedere tutti i prezzi direttamente sul sito. Vuoi informazioni su un modello specifico? Dimmi quale auto ti interessa!' }
-    }
-    if (lowerMessage.includes('finanziamento') || lowerMessage.includes('rata')) {
-      return { text: 'Offriamo diverse soluzioni di finanziamento. Contattaci al 079 2638300 per una consulenza personalizzata!' }
-    }
-    if (lowerMessage.includes('garanzia') || lowerMessage.includes('garantit')) {
-      return { text: 'Tutte le nostre auto usate sono garantite e controllate. Ogni veicolo passa un\'ispezione completa prima della vendita.' }
-    }
-    if (lowerMessage.includes('permuta') || lowerMessage.includes('permut')) {
-      return { 
-        text: 'Sì! Permutiamo la tua auto usata. Possiamo valutarla e darti un\'offerta.\n\nVuoi maggiori informazioni? Vai al servizio "Permutiamo la tua auto" per compilare il form e richiedere una valutazione!' 
-      }
-    }
-    // Contatto e supporto
-    if (lowerMessage.includes('contatto') || lowerMessage.includes('supporto') || 
-        lowerMessage.includes('aiuto') || lowerMessage.includes('help') ||
-        lowerMessage.includes('assistenza') || lowerMessage.includes('info')) {
-      return { 
-        text: 'Siamo qui per aiutarti! Puoi contattarci:\n\n📞 Telefono: 079 2638300\n📧 Email: autocambss@gmail.com\n\nOppure visita le nostre pagine servizi per compilare i form online!' 
-      }
-    }
-    
-    // Compriamo auto
-    if (lowerMessage.includes('vendo') || lowerMessage.includes('vendere') || 
-        lowerMessage.includes('compro') || lowerMessage.includes('comprare') ||
-        lowerMessage.includes('valutazione') || lowerMessage.includes('valutare')) {
-      return { 
-        text: 'Vuoi vendere la tua auto? Offriamo un servizio di valutazione e acquisto!\n\nVai al servizio "Compriamo la tua auto" per richiedere una valutazione gratuita!' 
-      }
-    }
-    
-    // Servizi
-    if (lowerMessage.includes('servizi') || lowerMessage.includes('servizio')) {
-      return { 
-        text: 'Offriamo diversi servizi:\n\n🔍 "Cerca un\'auto" - Cerchiamo l\'auto che desideri\n💰 "Compriamo la tua auto" - Valutazione e acquisto\n🔄 "Permutiamo la tua auto" - Permuta con una delle nostre auto\n\nClicca sui link per accedere ai form!' 
-      }
-    }
-    
-    // Orari e ubicazione
-    if (lowerMessage.includes('orari') || lowerMessage.includes('aperto') || 
-        lowerMessage.includes('chiuso') || lowerMessage.includes('dove') ||
-        lowerMessage.includes('sede') || lowerMessage.includes('indirizzo')) {
-      return { 
-        text: 'Per informazioni su orari, ubicazione e visite, contattaci:\n\n📞 079 2638300\n📧 autocambss@gmail.com\n\nSaremo felici di darti tutte le informazioni!' 
-      }
-    }
-    
-    if (lowerMessage.includes('ciao') || lowerMessage.includes('salve') || 
-        lowerMessage.includes('buongiorno') || lowerMessage.includes('buonasera')) {
-      return { text: 'Ciao! Sono qui per aiutarti a trovare l\'auto perfetta. Dimmi quale marca o modello stai cercando, oppure chiedimi informazioni sui nostri servizi!' }
-    }
-    
+    // Risposta generica
     return { text: 'Grazie per il tuo messaggio! Dimmi quale auto stai cercando (marca, modello) e ti mostrerò le disponibilità. Oppure chiamaci al 079 2638300 o scrivi a autocambss@gmail.com per informazioni dettagliate!' }
   }
 
